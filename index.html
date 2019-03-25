@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Document</title>
+</head>
+<body>
+	<script src="Sortable.js"></script>
+	<div id="items">
+		<ul class="wrap" id="example1">
+		    <li drag-id='1'>item 1 <span>X</span></li>
+		    <li drag-id='2'>item 2</li>
+		    <li drag-id='3'>item 3</li>
+		</ul>
+		<ul class="wrap" id="example2">
+		    <li drag-id='4' class="my-handle">item 4</li>
+		    <li drag-id='5'>item 5</li>
+		    <li drag-id='6'>item 6</li>
+		</ul>
+		<ul class="wrap" id="example3">
+		    <li drag-id='7'>item 7</li>
+		    <li drag-id='8'>item 8</li>
+		    <li drag-id='9'>item 9</li>
+		</ul>
+	</div>
+
+	<a name="e"></a>
+	<div class="container" style="margin-top: 100px">
+		<div id="filter" style="margin-left: 30px">
+		  	<div><div data-force="5" class="layer title title_xl">Editable list</div></div>
+		  
+			<div style="margin-top: -8px; margin-left: 10px" class="block__list block__list_words">
+			  <ul id="editable">
+				  <li>qq<i class="js-remove">✖</i></li>
+				  <li>ww<i class="js-remove">✖</i></li>
+				  <li>ee<i class="js-remove">✖</i></li>
+			  </ul>
+			  
+			  
+			</div>
+		</div>
+	</div>
+	
+	<script>
+		// var el = document.getElementById('items');
+		// var sortable = Sortable.create(el,{});
+		var example1 = document.getElementById('example1'),
+			example2 = document.getElementById('example2'),
+			example3 = document.getElementById('example3');
+		new Sortable(example1, {
+		    group: 'shared', // set both lists to same group
+		    animation: 150,
+		
+			// onAdd: function (evt){ //拖拽时候添加有新的节点的时候发生该事件
+			// 	console.log('onAdd.foo:', [evt.item, evt.from]);
+			// },
+			// onUpdate: function (evt){ //拖拽更新节点位置发生该事件
+			//    console.log('onUpdate.foo:', [evt.item, evt.from]);
+			// },
+			// onRemove: function (evt){ //删除拖拽节点的时候促发该事件
+			//    console.log('onRemove.foo:', [evt.item, evt.from]);
+			// },
+			// onStart:function(evt){ //开始拖拽出发该函数
+			//    console.log('onStart.foo:', [evt.item, evt.from]);
+			// },
+			// onSort:function(evt){ //发生排序发生该事件
+			//    console.log('onSort.foo:', [evt.item, evt.from]);
+			// },
+			onEnd: function(evt){ //拖拽完毕之后发生该事件
+			   console.log('onEnd.foo:', [evt.item, evt.from]);
+			   var id_arr=''
+			   for(var i=0; i<evt.from.children.length; i++){
+			   	id_arr+=','+ evt.from.children[i].getAttribute('drag-id');
+			   }
+			   console.log(id_arr);
+			   id_arr=id_arr.substr(1);
+			   //然后请求后台ajax 这样就完成了拖拽排序
+			   console.log(id_arr);
+			}
+		});
+
+		new Sortable(example2, {
+		    group: 'shared',
+		    handle: ".my-handle",
+		    animation: 150
+		});
+		new Sortable(example3, {
+		    group: 'shared',
+		    animation: 150
+		});
+
+		console.log();
+
+
+		var editableList = Sortable.create(document.getElementById('editable'), {
+			 animation: 150,
+			 filter: '.js-remove',
+			 onFilter: function (evt) {
+				 console.log(evt.item)
+				 evt.item.parentNode.removeChild(evt.item);
+			 }
+		});
+		//配置说明
+		var defaults = {
+			 group: Math.random(), //产生一个随机数 //产生一个随机数 //改参数是对象有三个两个参数 pull: 拉, put:放 默认都是是true pull还有一个值是: 'clone', pull: 拉, put:放 设置为false 就不能拖拽了， 如果 pull 这种为'clone'则可以重一个列表中拖拽到另一个列表并且克隆dom节点， name：是两个或者多个列表拖拽之间的通信，如果name相同则他们可以互相拖拽
+			  
+			 sort: true, // 类型：Boolean,分类 false时候在自己的拖拽区域不能拖拽，但是可以拖拽到其他区域，true则可以做自己区域拖拽或者其他授权地方拖拽
+			 disabled: false, //类型：Boolean 是否禁用拖拽 true 则不能拖拽 默认是true
+			 store: null, // 用来html5 存储的 改返回 拖拽的节点的唯一id
+			 handle: null, //handle 这个参数是设置该标签，或者该class可以拖拽 但是不要设置 id的节点和子节点相同的tag不然会有bug
+			 scroll: true, //类型：Boolean，设置拖拽的时候滚动条是否智能滚动。默认为真，则智能滚动，false则不智能滚动
+			 scrollSensitivity: 30, //滚动的灵敏度,其实是拖拽离滚动边界的距离触发事件的距离边界+-30px的地方触发拖拽滚动事件，
+			 scrollSpeed: 10, //滚动速度
+			 draggable: /[uo]l/i.test(el.nodeName) ? 'li' : '>*',//draggable 判断拖拽节点的父层是否是ou ul
+			 ghostClass: 'sortable-ghost', // 排序镜像class,就是当鼠标拉起拖拽节点的时候添加该class
+			 chosenClass: 'sortable-chosen', // //为拖拽的节点添加一个class 开始拖拽鼠标按下去的时候 添加该class
+			 ignore: 'a, img', //a 或者是img
+			 filter: null, //改参数可以传递一个函数，或者字符串，字符串可以是class或者tag，然后用于触发oFilter函数，这样可以用来自定义事件等
+			 animation: 0, //拖拽动画时间戳
+			 setData: function (dataTransfer, dragEl) { //设置拖拽传递的参数
+			 dataTransfer.setData('Text', dragEl.textContent);
+			 },
+			 dropBubble: false, // 发生 drop事件 拖拽的时候是否阻止事件冒泡
+			 dragoverBubble: false, //发生 dragover 事件 拖拽的时候是否阻止事件冒泡
+			 dataIdAttr: 'data-id', //拖拽元素的id 数组
+			 delay: 0, //延迟拖拽时间, 其实就是鼠标按下去拖拽延迟
+			 forceFallback: false, // 不详
+			 fallbackClass: 'sortable-fallback', // 排序回退class
+			 fallbackOnBody: false,// 是否把拖拽镜像节点ghostEl放到body上
+		};
+
+	</script>
+	<style>
+		#items{width: 800px; margin: 20px auto }
+		.wrap{width: 200px; border: 1px solid #ccc; margin-right: 10px; float: left; height: 400px;}
+		*{margin: 0;padding: 0;list-style: none; }
+		li{position: relative; float: left; padding:4px 14px 4px 4px; background: #eee; border-radius: 4px; margin: 4px;}
+		li span{position: absolute; top: 0; right: 0; font-size: 12px}
+	</style>
+</body>
+</html>
